@@ -53,7 +53,11 @@ export async function patchNote(req, res, next){
 
 export async function deleteNote(req, res, next){
     try {
-        await Note.deleteOne({_id: req.params.id})
+        const response = await Note.deleteOne({_id: req.params.id})
+        console.log(response)
+        if (response.deletedCount == 0){
+            return res.status(404).send()
+        }
         res.status(200).send('deleted')
     } catch (err) {
         res.status(400).send('Couldnt delete note')

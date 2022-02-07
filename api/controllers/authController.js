@@ -20,10 +20,10 @@ export function create_user(req, res, next) {
             const token = Jwt.sign({
                 user_id: user._id,
                 email: user.email,
-            },process.env.TOKEN_KEY,{
+            }, process.env.TOKEN_KEY, {
                 expiresIn: "24h"
             })
-            
+
             user.token = token
             user.save()
                 .then(r => {
@@ -36,25 +36,30 @@ export function create_user(req, res, next) {
         })
 }
 
-export async function login (req,res,next) {
-    const user = await User.findOne({email: req.body.email})
-    console.log(user.email)
-    if (user.password == req.body.password){
+export async function login(req, res, next) {
+    try {
+        const user = await User.findOne({ email: req.body.email })
+        console.log(user.email)
+        if (user.password == req.body.password) {
 
-        const token = Jwt.sign({
-            user_id: user._id,
-            email: user.email,
-        },process.env.TOKEN_KEY,
-        {
-            expiresIn: "24h"
-        })
-        await User.findByIdAndUpdate(user._id,
-            {
-                token: token,
-            })
-        res.status(200).json({token: token})
-    } else {
-        return res.status(401).send()
-    }    
+            const token = Jwt.sign({
+                user_id: user._id,
+                email: user.email,
+            }, process.env.TOKEN_KEY,
+                {
+                    expiresIn: "24h"
+                })
+            await User.findByIdAndUpdate(user._id,
+                {
+                    token: token,
+                })
+            res.status(200).json({ token: token })
+        } else {
+            return res.status(401).send()
+        }
+    } catch (err) {
+        console.log(err)
+        return res.status(400).send()
+    }
 }
 
